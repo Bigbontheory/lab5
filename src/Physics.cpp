@@ -22,23 +22,8 @@ sf::Vector2f Physics::calculateCoulombForce(sf::Vector2f particlePos, float part
     return forceVector;
 }
 
-sf::Vector2f Physics::calculateCapacitorForce(sf::Vector2f particlePos, float particleCharge,
-    float startX, float endX, float fieldIntensity)
-{
 
-    if (particlePos.x >= startX && particlePos.x <= endX) {
-        return sf::Vector2f(particleCharge * fieldIntensity, 0.0f);
-    }
-    return sf::Vector2f(0.0f, 0.0f);
-}
 
-sf::Vector2f Physics::calculateLorentzForce(sf::Vector2f velocity, float charge, float B)
-{
-    float fx = charge * velocity.y * B;
-    float fy = -charge * velocity.x * B;
-
-    return sf::Vector2f(fx, fy);
-}
 
 sf::Vector2f Physics::calculateGravityForce(sf::Vector2f particlePos, float particleMass,
     sf::Vector2f targetPos, float targetMass)

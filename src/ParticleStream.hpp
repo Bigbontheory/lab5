@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <cmath>
-#include "LAB2/mutable_array_sequence.hpp"
+#include "../LAB2/mutable_array_sequence.hpp"
 
 struct StreamParticle {
     sf::Vector2f position;

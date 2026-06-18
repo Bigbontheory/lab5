@@ -43,14 +43,12 @@ FetchContent_MakeAvailable(imgui-sfml)
 # =========================
 # APP
 # =========================
-add_executable(app main.cpp "Particle.cpp" "FixedCharge.cpp" "Physics.cpp" "Accelerator.cpp")
-
-target_link_libraries(app
-    PRIVATE
-        sfml-graphics
-        sfml-window
-        sfml-system
-        ImGui-SFML::ImGui-SFML
+add_executable(app 
+    app/main.cpp 
+    src/Particle.cpp 
+    src/FixedCharge.cpp 
+    src/Physics.cpp 
+    src/Accelerator.cpp
 )
 
 # =========================
@@ -60,4 +58,16 @@ add_custom_command(TARGET app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "C:/SFML/bin"
     $<TARGET_FILE_DIR:app>
+)
+
+target_include_directories(app PRIVATE 
+    ${imgui_SOURCE_DIR}
+    ${imgui-sfml_SOURCE_DIR}
+)
+
+target_link_libraries(app PRIVATE 
+    sfml-graphics 
+    sfml-window 
+    sfml-system 
+    ImGui-SFML::ImGui-SFML
 )

@@ -23,36 +23,31 @@ void FixedCharge::setCharge(float charge) {
     m_charge = charge;
 
     if (m_charge > 0.0f) {
-        // Положительный — Красный (интенсивность зависит от величины заряда)
+
         m_shape.setFillColor(sf::Color(255, 50, 50));
         m_shape.setOutlineColor(sf::Color(255, 150, 150));
         m_shape.setOutlineThickness(2.0f);
     }
     else if (m_charge < 0.0f) {
-        // Отрицательный — Синий
         m_shape.setFillColor(sf::Color(50, 50, 255));
         m_shape.setOutlineColor(sf::Color(150, 150, 255));
         m_shape.setOutlineThickness(2.0f);
     }
     else {
-        // Ноль — Нейтральный серый
         m_shape.setFillColor(sf::Color(120, 120, 120));
         m_shape.setOutlineThickness(0.0f);
     }
 }
 
-// Отрисовка со статичным неоновым свечением
 void FixedCharge::draw(sf::RenderTarget& target) const {
 
     if (std::abs(m_charge) > 0.01f) {
-        // Делаем постоянный, чуть увеличенный радиус для эффекта неонового ореола
         float glowRadius = 20.0f;
 
         sf::CircleShape glow(glowRadius);
         glow.setOrigin(glowRadius, glowRadius);
         glow.setPosition(m_position);
 
-        // Мягкое неоновое свечение (постоянная прозрачность 45 единиц)
         if (m_charge > 0.0f) {
             glow.setFillColor(sf::Color(255, 60, 60, 45));
         }
@@ -63,6 +58,5 @@ void FixedCharge::draw(sf::RenderTarget& target) const {
         target.draw(glow);
     }
 
-    // Рисуем само ядро поверх статического неонового свечения
     target.draw(m_shape);
 }

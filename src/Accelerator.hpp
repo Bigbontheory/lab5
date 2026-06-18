@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
-#include "LAB2/mutable_array_sequence.hpp" // Твой кастомный массив
+#include "../LAB2/mutable_array_sequence.hpp"
 
 class Accelerator {
 private:

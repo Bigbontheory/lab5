@@ -3,16 +3,17 @@
 #include <imgui-SFML.h>
 #include <string>
 #include <cmath>
-#include <vector>
 #include <algorithm>
 
-#include "Particle.hpp"
-#include "FixedCharge.hpp"
-#include "Physics.hpp"
-#include "LAB2/mutable_array_sequence.hpp" 
-#include "ParticleStream.hpp"
-#include "Accelerator.hpp" 
-#include "GuiTheme.hpp"
+
+#include <vector>
+#include "../src/Particle.hpp"
+#include "../src/FixedCharge.hpp"
+#include "../src/Physics.hpp"
+#include "../LAB2/mutable_array_sequence.hpp" 
+#include "../src/ParticleStream.hpp"
+#include "../src/Accelerator.hpp" 
+#include "../src/GuiTheme.hpp"
 
 
 
@@ -26,36 +27,29 @@ int main() {
         return -1;
     }
     GuiTheme::ApplySciFi();
-
-    // --- ЗАГРУЗКА ШРИФТА ---
     sf::Font font;
     if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
         font.loadFromFile("arial.ttf");
     }
 
-    // --- НАСТРОЙКИ ДИНАМИЧЕСКОГО ПОЛЯ ---
     float capIntensity = 5000.0f;
     float frequency = 54.0f;
     float centerY = 280.0f;
 
-    // Инициализация вынесенного компонента ускорителя
     Accelerator accelerator(capIntensity, frequency, 5, 40.0f, 8.0f, 6.0f, 1.60f, 80.0f, 20.0f, centerY);
 
-    // --- НАСТРОЙКА ЧАСТИЦЫ И ЕЕ ТРЕЙЛА ---
     float particleMass = 1.0f;
-    float particleCharge = 1.0f;     // Динамический заряд иона, теперь управляется ползунком
+    float particleCharge = 1.0f;
     float startVelocityX = 20.0f;
 
     Particle particle(sf::Vector2f(20.0f, centerY), sf::Vector2f(startVelocityX, 0.0f), particleMass, particleCharge);
 
-    // Вектор для хранения истории позиций (неоновый шлейф)
+
     std::vector<sf::Vector2f> particleTrail;
     const size_t MAX_TRAIL_SIZE = 25;
 
-    // --- ПОТОК ЧАСТИЦ СНИЗУ ---
     ParticleStream plasmaStream(100, 600.0f, 1200.0f);
 
-    // --- ФИКСИРОВАННАЯ КАРТА ЗАРЯДОВ ---
     const int NUM_CHARGES = 12;
     FixedCharge rawCharges[NUM_CHARGES] = {
         FixedCharge(sf::Vector2f(350.0f, 120.0f),  45.0f),
@@ -79,7 +73,6 @@ int main() {
 
     MutableArraySequence<FixedCharge> fixedCharges(rawCharges, NUM_CHARGES);
 
-    // --- МИШЕНЬ ---
     const float targetZoneX = 1160.0f;
     const float targetZoneTopY = 60.0f;
     const float targetZoneBottomY = 140.0f;
@@ -104,7 +97,6 @@ int main() {
 
         plasmaStream.update(dt);
 
-        // --- IMGUI ПАНЕЛЬ ---
         ImGui::Begin("LINAC: Plasma Stream Controller");
         ImGui::Text("RF Field Settings:");
         ImGui::SliderFloat("Voltage (E)", &capIntensity, 0.0f, 15000.0f);
@@ -115,7 +107,6 @@ int main() {
         ImGui::SliderFloat("Stream Velocity", &plasmaStream.getVelocityRef(), 0.0f, 600.0f);
         ImGui::SliderFloat("Stream Avg Charge", &plasmaStream.getChargeRef(), -10.0f, 10.0f);
 
-        // БЛОК СВОЙСТВ ИОНА С НОВЫМ ПОЛЗУНКОМ ЗАРЯДА
         ImGui::Separator();
         ImGui::Text("Ion Properties:");
         ImGui::SliderFloat("Initial Velocity X", &startVelocityX, 5.0f, 200.0f);
@@ -163,7 +154,6 @@ int main() {
             ImGui::TreePop();
         }
 
-        // Проверка попадания в мишень
         sf::Vector2f pPos = particle.getPosition();
         if (pPos.x >= targetZoneX && pPos.x <= targetZoneX + 35.0f) {
             if (pPos.y >= targetZoneTopY && pPos.y <= targetZoneBottomY) {
@@ -181,7 +171,6 @@ int main() {
 
         ImGui::Spacing();
         if (ImGui::Button("Launch / Reset", ImVec2(-1, 30))) {
-            // Перезапуск с учетом нового выставленного заряда
             particle = Particle(sf::Vector2f(20.0f, centerY), sf::Vector2f(startVelocityX, 0.0f), particleMass, particleCharge);
             particleTrail.clear();
             totalTime = 0.0f;
@@ -189,18 +178,15 @@ int main() {
         }
         ImGui::End();
 
-        // --- ФИЗИКА ---
+        
         sf::Vector2f totalForce(0.0f, 0.0f);
         sf::Vector2f currentPos = particle.getPosition();
         sf::Vector2f currentVel = particle.getVelocity();
-
-        // Добавляем текущую позицию в хвост трейла
         particleTrail.push_back(currentPos);
         if (particleTrail.size() > MAX_TRAIL_SIZE) {
             particleTrail.erase(particleTrail.begin());
         }
 
-        // Делегируем расчет сил ВЧ-поля внутри ускорителя вынесенному классу
         sf::Vector2f fieldForce(0.0f, 0.0f);
         bool insideAnyCapacitor = accelerator.updateFieldForce(currentPos, particle.getCharge(), totalTime, fieldForce);
 
@@ -232,7 +218,6 @@ int main() {
 
         particle.update(totalForce, dt);
 
-        // Авто-ресет при вылете за границы экрана
         if (particle.getPosition().y < -100.0f || particle.getPosition().y > 800.0f || particle.getPosition().x > 1250.0f) {
             if (!levelPassed) {
                 particle = Particle(sf::Vector2f(20.0f, centerY), sf::Vector2f(startVelocityX, 0.0f), particleMass, particleCharge);
@@ -241,10 +226,10 @@ int main() {
             }
         }
 
-        // --- РЕНДЕРИНГ ---
-        window.clear(sf::Color(8, 10, 15)); // Глубокий космический фон
+  
+        window.clear(sf::Color(8, 10, 15)); 
 
-        // Технологичная фоновая сетка
+
         sf::Color gridColor(20, 26, 38);
         for (int x = 0; x < 1200; x += 40) {
             sf::Vertex line[] = { sf::Vertex(sf::Vector2f(static_cast<float>(x), 0.0f), gridColor), sf::Vertex(sf::Vector2f(static_cast<float>(x), 700.0f), gridColor) };
@@ -255,7 +240,6 @@ int main() {
             window.draw(line, 2, sf::Lines);
         }
 
-        // Индикатор Магнитного B-поля
         float currentB = plasmaStream.calculateMagneticFieldAt(particle.getPosition());
         if (!std::isnan(currentB)) {
             sf::RectangleShape magGlow(sf::Vector2f(1200.0f, 700.0f));
@@ -264,7 +248,6 @@ int main() {
             window.draw(magGlow);
         }
 
-        // Отрисовка финишной мишени
         sf::RectangleShape targetVisual(sf::Vector2f(20.0f, targetZoneBottomY - targetZoneTopY));
         targetVisual.setPosition(targetZoneX, targetZoneTopY);
         if (levelPassed) {
@@ -278,13 +261,11 @@ int main() {
         targetVisual.setOutlineThickness(2.0f);
         window.draw(targetVisual);
 
-        // Чистая отрисовка вынесенного ускорителя одной строчкой
+
         accelerator.draw(window, totalTime);
 
-        // Рисуем плазменный поток снизу
         plasmaStream.draw(window);
 
-        // --- ОТРИСОВКА НЕОНОВОГО ШЛЕЙФА ЧАСТИЦЫ ---
         for (size_t i = 0; i < particleTrail.size(); ++i) {
             float alphaFactor = static_cast<float>(i) / particleTrail.size();
             float radius = 1.0f + alphaFactor * 4.0f;
@@ -296,7 +277,6 @@ int main() {
             window.draw(trailDot);
         }
 
-        // Отрисовка статичных препятствий-зарядов
         for (int i = 0; i < fixedCharges.get_size(); ++i) {
             FixedCharge& fc = const_cast<FixedCharge&>(fixedCharges.get(i));
             fc.draw(window);
@@ -314,7 +294,6 @@ int main() {
             }
         }
 
-        // Рисуем саму летящую голову частицы поверх шлейфа
         particle.draw(window);
 
         ImGui::SFML::Render(window);
