@@ -29,6 +29,7 @@ public:
     const T& get_first() const override;
     const T& get_last() const override;
     const T& get(int index) const override;
+    T& get(int index);
     int get_size() const override;
 
     Sequence<T>* append(const T& item) override;

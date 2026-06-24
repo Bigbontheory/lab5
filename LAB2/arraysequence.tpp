@@ -140,9 +140,17 @@ Sequence<T>* ArraySequence<T>::remove_at_internal(int index) {
 template <typename T>
 const T& ArraySequence<T>::get(int index) const {
     if (index < 0 || index >= this->get_size()) {
-        throw std::out_of_range("Index out of range;");
+        throw std::out_of_range("Index out of range");
     }
 
+    return items->get(index);
+}
+
+template <typename T>
+T& ArraySequence<T>::get(int index){
+    if (index < 0 || index >= this->get_size()) {
+        throw std::out_of_range("Index out of range");
+    }
     return items->get(index);
 }
 

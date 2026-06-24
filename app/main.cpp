@@ -4,9 +4,8 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
-
-
 #include <vector>
+
 #include "../src/Particle.hpp"
 #include "../src/FixedCharge.hpp"
 #include "../src/Physics.hpp"
@@ -14,8 +13,6 @@
 #include "../src/ParticleStream.hpp"
 #include "../src/Accelerator.hpp" 
 #include "../src/GuiTheme.hpp"
-
-
 
 int main() {
     sf::ContextSettings settings;
@@ -44,32 +41,27 @@ int main() {
 
     Particle particle(sf::Vector2f(20.0f, centerY), sf::Vector2f(startVelocityX, 0.0f), particleMass, particleCharge);
 
-
     std::vector<sf::Vector2f> particleTrail;
     const size_t MAX_TRAIL_SIZE = 25;
 
     ParticleStream plasmaStream(100, 600.0f, 1200.0f);
 
+    // Инициализируем сразу: Позиция, Заряд, Масса
     const int NUM_CHARGES = 12;
     FixedCharge rawCharges[NUM_CHARGES] = {
-        FixedCharge(sf::Vector2f(350.0f, 120.0f),  45.0f),
-        FixedCharge(sf::Vector2f(420.0f, 520.0f), -45.0f),
-        FixedCharge(sf::Vector2f(510.0f, 200.0f),  45.0f),
-        FixedCharge(sf::Vector2f(580.0f, 440.0f), -45.0f),
-        FixedCharge(sf::Vector2f(660.0f, 100.0f),  45.0f),
-        FixedCharge(sf::Vector2f(720.0f, 580.0f), -45.0f),
-        FixedCharge(sf::Vector2f(810.0f, 230.0f),  45.0f),
-        FixedCharge(sf::Vector2f(890.0f, 390.0f), -45.0f),
-        FixedCharge(sf::Vector2f(950.0f, 150.0f),  45.0f),
-        FixedCharge(sf::Vector2f(1020.0f, 500.0f), -45.0f),
-        FixedCharge(sf::Vector2f(1080.0f, 210.0f),  45.0f),
-        FixedCharge(sf::Vector2f(1130.0f, 460.0f), -45.0f)
+        FixedCharge(sf::Vector2f(350.0f, 120.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(420.0f, 520.0f), -45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(510.0f, 200.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(580.0f, 440.0f), -45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(660.0f, 100.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(720.0f, 580.0f), -45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(810.0f, 230.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(890.0f, 390.0f), -45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(950.0f, 150.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(1020.0f, 500.0f), -45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(1080.0f, 210.0f),  45.0f, 120.0f),
+        FixedCharge(sf::Vector2f(1130.0f, 460.0f), -45.0f, 120.0f)
     };
-
-    float targetMasses[NUM_CHARGES];
-    for (int i = 0; i < NUM_CHARGES; ++i) {
-        targetMasses[i] = 120.0f;
-    }
 
     MutableArraySequence<FixedCharge> fixedCharges(rawCharges, NUM_CHARGES);
 
@@ -129,7 +121,8 @@ int main() {
             ImGui::Separator();
 
             for (int i = 0; i < fixedCharges.get_size(); ++i) {
-                FixedCharge& fc = const_cast<FixedCharge&>(fixedCharges.get(i));
+                // Избавляемся от const_cast. Работаем напрямую через ссылку.
+                FixedCharge& fc = fixedCharges.get(i);
                 ImGui::PushID(i);
 
                 ImGui::Text("Obstacle #%d", i + 1);
@@ -143,8 +136,12 @@ int main() {
                 ImGui::PopItemWidth();
                 ImGui::NextColumn();
 
+                // Слайдер для массы берет и обновляет данные прямо в объекте
+                float mVal = fc.getMass();
                 ImGui::PushItemWidth(-1);
-                ImGui::SliderFloat("##M", &targetMasses[i], 0.0f, 500.0f, "M: %.1f");
+                if (ImGui::SliderFloat("##M", &mVal, 0.0f, 500.0f, "M: %.1f")) {
+                    fc.setMass(mVal);
+                }
                 ImGui::PopItemWidth();
                 ImGui::NextColumn();
 
@@ -178,7 +175,6 @@ int main() {
         }
         ImGui::End();
 
-        
         sf::Vector2f totalForce(0.0f, 0.0f);
         sf::Vector2f currentPos = particle.getPosition();
         sf::Vector2f currentVel = particle.getVelocity();
@@ -196,7 +192,8 @@ int main() {
         else {
             if (currentPos.x > accelerator.getEndX()) {
                 for (int i = 0; i < fixedCharges.get_size(); ++i) {
-                    sf::Vector2f targetPos = fixedCharges.get(i).getPosition();
+                    const FixedCharge& fc = fixedCharges.get(i);
+                    sf::Vector2f targetPos = fc.getPosition();
                     sf::Vector2f diff = currentPos - targetPos;
                     float dSq = diff.x * diff.x + diff.y * diff.y;
 
@@ -205,8 +202,8 @@ int main() {
                         sf::Vector2f normal = diff / (dist > 0.0f ? dist : 1.0f);
                         totalForce += normal * 8000.0f;
                     }
-                    totalForce += Physics::calculateCoulombForce(currentPos, particle.getCharge(), targetPos, fixedCharges.get(i).getCharge());
-                    totalForce += Physics::calculateGravityForce(currentPos, particleMass, targetPos, targetMasses[i]);
+                    totalForce += Physics::calculateCoulombForce(currentPos, particle.getCharge(), targetPos, fc.getCharge());
+                    totalForce += Physics::calculateGravityForce(currentPos, particleMass, targetPos, fc.getMass());
                 }
             }
             float B = plasmaStream.calculateMagneticFieldAt(currentPos);
@@ -226,9 +223,7 @@ int main() {
             }
         }
 
-  
-        window.clear(sf::Color(8, 10, 15)); 
-
+        window.clear(sf::Color(8, 10, 15));
 
         sf::Color gridColor(20, 26, 38);
         for (int x = 0; x < 1200; x += 40) {
@@ -261,9 +256,7 @@ int main() {
         targetVisual.setOutlineThickness(2.0f);
         window.draw(targetVisual);
 
-
         accelerator.draw(window, totalTime);
-
         plasmaStream.draw(window);
 
         for (size_t i = 0; i < particleTrail.size(); ++i) {
@@ -278,7 +271,7 @@ int main() {
         }
 
         for (int i = 0; i < fixedCharges.get_size(); ++i) {
-            FixedCharge& fc = const_cast<FixedCharge&>(fixedCharges.get(i));
+            const FixedCharge& fc = fixedCharges.get(i);
             fc.draw(window);
 
             if (font.getInfo().family != "") {

@@ -1,7 +1,7 @@
 #include "FixedCharge.hpp"
 
-FixedCharge::FixedCharge(sf::Vector2f pos, float charge)
-    : m_position(pos), m_charge(charge)
+FixedCharge::FixedCharge(sf::Vector2f pos, float charge, float mass)
+    : m_position(pos), m_charge(charge), m_mass(mass)
 {
     float radius = 6.0f;
     m_shape.setRadius(radius);
