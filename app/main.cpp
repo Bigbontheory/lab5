@@ -16,6 +16,7 @@
 
 #include "ParticleRenderer.hpp"
 #include "FixedChargeRenderer.hpp"
+#include "ParticleStreamRenderer.hpp"
 
 int main() {
     sf::ContextSettings settings;
@@ -257,7 +258,7 @@ int main() {
         window.draw(targetVisual);
 
         accelerator.draw(window, totalTime);
-        plasmaStream.draw(window);
+        ParticleStreamRenderer::draw(window, plasmaStream);
 
         for (size_t i = 0; i < particleTrail.size(); ++i) {
             float alphaFactor = static_cast<float>(i) / particleTrail.size();

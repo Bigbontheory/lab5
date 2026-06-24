@@ -2,8 +2,8 @@
 #include <SFML/System/Vector2.hpp>
 
 namespace Physics {
-    const float K = 1000.0f;
-    const float G = 10.0f;
+    const float K = 0.0f;
+    const float G = 0.0f;
 
     // Функция подсчета силы Кулона между неподвижным зарядом Q и летящей частицей q
     sf::Vector2f calculateCoulombForce(sf::Vector2f particlePos, float particleCharge,

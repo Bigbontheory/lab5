@@ -1,5 +1,5 @@
 #include "Particle.hpp"
-#include <SFML/Graphics/RenderTarget.hpp>
+
 
 Particle::Particle(sf::Vector2f pos, sf::Vector2f vel, float mass, float charge)
     : m_position(pos), m_velocity(vel), m_mass(mass), m_charge(charge)

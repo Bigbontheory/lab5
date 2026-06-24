@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SFML/System/Vector2.hpp>
 
 class FixedCharge {
@@ -9,7 +8,7 @@ private:
     float m_mass;
 public:
 
-    FixedCharge() : m_charge(0), m_mass(0) {}
+    FixedCharge() : m_position(0.0f, 0.0f), m_charge(0.0f) {}
     FixedCharge(sf::Vector2f pos, float charge, float mass);
 
     sf::Vector2f getPosition() const { return m_position; }

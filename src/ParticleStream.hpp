@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <cmath>
 #include "../LAB2/mutable_array_sequence.hpp"
@@ -81,26 +80,8 @@ public:
     float& getVelocityRef() { return baseVelocity; }
     float& getChargeRef() { return averageCharge; }
     int get_size() const { return size; }
+    float getVelocity() const { return baseVelocity; }
+    float getCharge() const { return averageCharge; }
 
-    void draw(sf::RenderWindow& window) const {
-        if (size == 0) return;
-        for (int i = 0; i < size; ++i) {
-            const StreamParticle& p = particles.get(i);
-
-            sf::CircleShape dot(3.0f);
-            dot.setOrigin(3.0f, 3.0f);
-            dot.setPosition(p.position);
-
-            if (averageCharge > 0.0f) {
-                dot.setFillColor(sf::Color(0, 255, 150, 220));
-            }
-            else if (averageCharge < 0.0f) {
-                dot.setFillColor(sf::Color(255, 150, 0, 220));
-            }
-            else {
-                dot.setFillColor(sf::Color(150, 150, 150, 150));
-            }
-            window.draw(dot);
-        }
-    }
+    const StreamParticle& getParticle(int index) const { return particles.get(index); }
 };
