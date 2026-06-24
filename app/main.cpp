@@ -14,6 +14,7 @@
 #include "../src/Accelerator.hpp" 
 #include "../src/GuiTheme.hpp"
 
+#include "FixedChargeRenderer.hpp"
 int main() {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -46,7 +47,6 @@ int main() {
 
     ParticleStream plasmaStream(100, 600.0f, 1200.0f);
 
-    // Инициализируем сразу: Позиция, Заряд, Масса
     const int NUM_CHARGES = 12;
     FixedCharge rawCharges[NUM_CHARGES] = {
         FixedCharge(sf::Vector2f(350.0f, 120.0f),  45.0f, 120.0f),
@@ -121,7 +121,6 @@ int main() {
             ImGui::Separator();
 
             for (int i = 0; i < fixedCharges.get_size(); ++i) {
-                // Избавляемся от const_cast. Работаем напрямую через ссылку.
                 FixedCharge& fc = fixedCharges.get(i);
                 ImGui::PushID(i);
 
@@ -136,7 +135,6 @@ int main() {
                 ImGui::PopItemWidth();
                 ImGui::NextColumn();
 
-                // Слайдер для массы берет и обновляет данные прямо в объекте
                 float mVal = fc.getMass();
                 ImGui::PushItemWidth(-1);
                 if (ImGui::SliderFloat("##M", &mVal, 0.0f, 500.0f, "M: %.1f")) {
@@ -272,7 +270,8 @@ int main() {
 
         for (int i = 0; i < fixedCharges.get_size(); ++i) {
             const FixedCharge& fc = fixedCharges.get(i);
-            fc.draw(window);
+
+            FixedChargeR::draw(window, fc);
 
             if (font.getInfo().family != "") {
                 sf::Text text;
