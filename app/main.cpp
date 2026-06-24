@@ -14,7 +14,9 @@
 #include "../src/Accelerator.hpp" 
 #include "../src/GuiTheme.hpp"
 
+#include "ParticleRenderer.hpp"
 #include "FixedChargeRenderer.hpp"
+
 int main() {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
@@ -286,7 +288,7 @@ int main() {
             }
         }
 
-        particle.draw(window);
+        ParticleR::draw(window, particle);
 
         ImGui::SFML::Render(window);
         window.display();
