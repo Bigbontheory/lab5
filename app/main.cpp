@@ -13,10 +13,7 @@
 #include "../src/ParticleStream.hpp"
 #include "../src/Accelerator.hpp" 
 #include "../src/GuiTheme.hpp"
-
-#include "ParticleRenderer.hpp"
-#include "FixedChargeRenderer.hpp"
-#include "ParticleStreamRenderer.hpp"
+#include "SFMLRender.hpp"
 
 int main() {
     sf::ContextSettings settings;
@@ -257,7 +254,7 @@ int main() {
         targetVisual.setOutlineThickness(2.0f);
         window.draw(targetVisual);
 
-        accelerator.draw(window, totalTime);
+        AcceleratorRenderer::draw(window, accelerator, totalTime);
         ParticleStreamRenderer::draw(window, plasmaStream);
 
         for (size_t i = 0; i < particleTrail.size(); ++i) {

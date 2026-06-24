@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <cmath>
 #include "../LAB2/mutable_array_sequence.hpp"
+#include <SFML/System/Vector2.hpp>
 
 class Accelerator {
 private:
@@ -40,10 +40,14 @@ public:
     float getEndX() const { return m_acceleratorEndX; }
     int getNumStages() const { return m_numStages; }
     float getStageGap() const { return m_stageGap; }
+    float getCapIntensity() const { return m_capIntensity; }
+    float getFrequency() const { return m_frequency; }
+    float getCenterY() const { return m_centerY; }
+    float getPlateHeight() const { return m_plateHeight; }
+    float getHoleSize() const { return m_holeSize; }
+    float getBaseWidth() const { return m_baseWidth; }
+    float getGrowthFactor() const { return m_growthFactor; }
 
     // Расчет силы и обновление состояния ВЧ-поля внутри ускорителя
     bool updateFieldForce(const sf::Vector2f& particlePos, float particleCharge, float totalTime, sf::Vector2f& outForce);
-
-    // Отрисовка шасси, неонового зазора и металлических пластин
-    void draw(sf::RenderWindow& window, float totalTime) const;
 };
