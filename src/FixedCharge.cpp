@@ -1,10 +1,13 @@
 #include "FixedCharge.hpp"
 
-FixedCharge::FixedCharge(sf::Vector2f pos, float charge, float mass)
-   : m_position(pos), m_charge(charge), m_mass(mass)
-{
+FixedCharge::FixedCharge(sf::Vector2f pos, float charge, float mass) {
+    m_position = PhysicsScale::toPhysics(pos);
+    m_charge = PhysicsScale::chargeToCoulombs(charge);
+    m_mass = PhysicsScale::obstacleMassToKg(mass);
 }
 
 void FixedCharge::setCharge(float charge) {
-    m_charge = charge;
+    m_charge = PhysicsScale::chargeToCoulombs(charge);
 }
+
+

@@ -32,6 +32,7 @@ public:
     T& get(int index);
     int get_size() const override;
 
+    void set(int index, const T& value);
     Sequence<T>* append(const T& item) override;
     Sequence<T>* prepend(const T& item) override;
     Sequence<T>* insert_at(const T& item, int index) override;

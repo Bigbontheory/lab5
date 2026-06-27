@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/System/Vector2.hpp>
+#include "PhysicsScale.hpp"
 
 class FixedCharge {
 private:
@@ -16,5 +17,7 @@ public:
     float getMass() const { return m_mass; }
 
     void setCharge(float charge);
-    void setMass(float mass) { m_mass = mass; }
+    void setMass(float mass) {
+        m_mass = static_cast<float>(PhysicsScale::obstacleMassToKg(mass));
+    }
 };

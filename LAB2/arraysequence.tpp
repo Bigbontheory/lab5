@@ -155,6 +155,11 @@ T& ArraySequence<T>::get(int index){
 }
 
 template <typename T>
+void ArraySequence<T>::set(int index, const T& value) {
+    this->items->set(index, value);
+}
+
+template <typename T>
 Sequence<T>* ArraySequence<T>::append(const T& item) {
     return this->instance()->append_internal(item);
 }

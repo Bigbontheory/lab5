@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cmath>
 #include "../LAB2/mutable_array_sequence.hpp"
+#include "PhysicsScale.hpp"
 
 struct StreamParticle {
     sf::Vector2f position;
@@ -22,10 +23,11 @@ private:
         if (count <= 0) return nullptr;
         StreamParticle* data = new StreamParticle[count];
         for (int i = 0; i < count; ++i) {
-            data[i].position = sf::Vector2f(
+            sf::Vector2f screenPos(
                 static_cast<float>(rand() % static_cast<int>(width)),
                 yLevel + (rand() % 16 - 8)
             );
+            data[i].position = PhysicsScale::toPhysics(screenPos);
             data[i].speedFactor = 0.8f + (rand() % 40) / 100.0f;
         }
         return data;
@@ -33,26 +35,39 @@ private:
 
 public:
     ParticleStream()
-        : size(0), streamY(0.0f), screenWidth(1200.0f), baseVelocity(180.0f), averageCharge(1.0f) {
+        : size(0),
+         streamY(0.0f),
+         screenWidth(PhysicsScale::toPhysics(1200.0f)),
+         baseVelocity(180.0f),
+         averageCharge(1.0f)
+    {
     }
 
-    ParticleStream(int count, float yLevel, float width)
-        : size(count), streamY(yLevel), screenWidth(width), baseVelocity(180.0f), averageCharge(1.0f),
-        particles(generateInitialData(count, yLevel, width), count)
+    ParticleStream(int count, float yLevel, float width) :
+         particles(generateInitialData(count, yLevel, width), count),
+         size(count),
+         streamY(PhysicsScale::toPhysics(yLevel)),
+         screenWidth(PhysicsScale::toPhysics(width)),
+         baseVelocity(180.0f),
+         averageCharge(1.0f)
     {
     }
 
     void update(float dt) {
         if (size == 0) return;
-        for (int i = 0; i < size; ++i) {
-            StreamParticle& p = const_cast<StreamParticle&>(particles.get(i));
+        float physVel = PhysicsScale::toPhysics(baseVelocity);
 
-            p.position.x += baseVelocity * p.speedFactor * dt;
+        for (int i = 0; i < size; ++i) {
+            StreamParticle p = particles.get(i);
+
+            p.position.x += physVel * p.speedFactor * dt;
 
             if (p.position.x > screenWidth) {
                 p.position.x = 0.0f;
-                p.position.y = streamY + (rand() % 16 - 8);
+                float screenY = PhysicsScale::toPixels(streamY) + (rand() % 16 - 8);
+                p.position.y = PhysicsScale::toPhysics(screenY);
             }
+            particles.set(i, p);
         }
     }
 
@@ -60,17 +75,19 @@ public:
         if (size == 0) return 0.0f;
 
         float totalB = 0.0f;
-        float k = 0.005f;
+        float k = 1000.0f;
+        float physVel = PhysicsScale::toPhysics(baseVelocity);
+        float physCharge = PhysicsScale::chargeToCoulombs(averageCharge);
 
         for (int i = 0; i < size; ++i) {
             const StreamParticle& p = particles.get(i);
 
             float dx = targetPos.x - p.position.x;
             float dy = targetPos.y - p.position.y;
-            float r2 = dx * dx + dy * dy + 400.0f;
+            float r2 = dx * dx + dy * dy + 0.04f;
             float r = std::sqrt(r2);
 
-            float B_particle = (averageCharge * (baseVelocity * p.speedFactor) * (-dy)) / (r2 * r);
+            float B_particle = (physCharge * (physVel * p.speedFactor) * (-dy)) / (r2 * r);
             totalB += B_particle;
         }
 

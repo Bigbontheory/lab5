@@ -6,7 +6,6 @@
 
 class Accelerator {
 private:
-    // Конфигурационные параметры геометрии LINAC
     int m_numStages;
     float m_startX;
     float m_baseWidth;
@@ -16,18 +15,16 @@ private:
     float m_holeSize;
     float m_centerY;
 
-    // Ссылки на динамические параметры поля (управляются через GUI)
+    float m_angle;
+    sf::Vector2f m_center;
+
     float& m_capIntensity;
     float& m_frequency;
 
-    // Вычисляемая координата конца ускорителя для физики
     float m_acceleratorEndX;
-
-    // Внутренний метод для предварительного расчета геометрии
     void calculateEndPosition();
 
 public:
-    // Конструктор принимает изменяемые параметры поля по ссылке, чтобы main и GUI работали со сквозными данными
     Accelerator(float& capIntensity, float& frequency,
         int numStages = 5, float startX = 40.0f, float baseWidth = 8.0f,
         float stageGap = 6.0f, float growthFactor = 1.60f, float plateHeight = 80.0f,
@@ -35,7 +32,13 @@ public:
 
     ~Accelerator() = default;
 
-    // Геттеры для физического движка
+    void setRotation(float angle);
+    float getRotation() const { return m_angle; }
+    void setCenter(sf::Vector2f center) { m_center = center; }
+    sf::Vector2f getCenter() const { return m_center; }
+
+    sf::Vector2f rotatePoint(sf::Vector2f point, bool inverse = false) const;
+
     float getStartX() const { return m_startX; }
     float getEndX() const { return m_acceleratorEndX; }
     int getNumStages() const { return m_numStages; }
@@ -48,6 +51,5 @@ public:
     float getBaseWidth() const { return m_baseWidth; }
     float getGrowthFactor() const { return m_growthFactor; }
 
-    // Расчет силы и обновление состояния ВЧ-поля внутри ускорителя
     bool updateFieldForce(const sf::Vector2f& particlePos, float particleCharge, float totalTime, sf::Vector2f& outForce);
 };
